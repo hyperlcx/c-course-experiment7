@@ -1,0 +1,547 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 30
+#define M 30
+#define G 6
+
+void ReadScore(char Name[][M],int Number[],int Score[][G],int*n,int*g);
+void CalculateTotalAverage(int Score[][G],int n,int g,int*pTotal,double*pAverage);
+void CalculateTotalAverageStu(int Score[][G],int n,int g,int*pTotal,double*pAverage);
+void PrintScore(char Name[][M],int Number[],int Totalstu[],int n);
+void PrintScoreStu(char Name[][M],int Number[],int Totalstu[],double Averagestu[],int n);
+void SelectionSort(char Name[][M],int Score[][G],int Totalstu[],int Number[],int n,int g,int(*compare)(int a,int b));
+void Swap(int*x,int*y);
+int Ascending(int a,int b);
+int Dscending(int a,int b);
+void NumberLowToHigh(char Name[][M],int Number[],int Score[][G],int Totalstu[],int n,int g);
+int LinSearch(int Number[],int x,int n);
+void RankScore(int Score[][G],int n,int g);
+void SortString(int Number[],char Name[][M],int Score[][G],int Totalstu[],int n,int g);
+void SwapName(char Name1[],char Name2[]);
+int NameSearch(char Name[][M],char y[M],int n);
+void PrintScoreSub(char Name[][M],int Number[],int Score[][G],int n,int g);
+void PrintAll(char Name[][M],int Number[],int Score[][G],int Totalstu[],double Averagestu[],int n,int g);
+void PrintRankScore(char Name[][M],int Score[][G],int g,int pos);
+
+
+int main()
+{
+    int number[N],score[N][G],n,g,mode,total[G]={0},totalstu[N]={0},pos,pos2,x,f,t;
+    double average[G]={0},averagestu[N]={0};
+    n=g=0;
+    pos=pos2=0;
+    char name[N][M],y[M];
+    f=0;
+
+
+    printf("1.Input record\n");
+    printf("2.Calculate total and average score of every course\n");
+    printf("3.Calculate total and average score of every student\n");
+    printf("4.Sort in dscending order by total score of every student\n");
+    printf("5.Sort in ascending order by total score of every student\n");
+    printf("6.Sort in ascending order by number\n");
+    printf("7.Sort in dictionary by name\n");
+    printf("8.Search by number\n");
+    printf("9.Search by name\n");
+    printf("10.Statistic analysis for every course\n");
+    printf("11.List record\n");
+    printf("0.Exit\n");
+
+    do
+    {
+        printf("Please enter your choice:");
+        scanf("%d",&mode);
+        switch(mode)
+        {
+        case 1 :
+            ReadScore(name,number,score,&n,&g);
+            f=1;
+            break;
+
+        case 2 :
+            if(f!=1)
+            {
+                printf("Please input score first\n");//防止用户未输入成绩就进行其他操作
+                break;
+            }
+            CalculateTotalAverage(score,n,g,total,average);
+            for(t=0; t<g; t++)
+            {
+                printf("Subject%d Total score:%d.Average score:%f\n",t+1,total[t],average[t]);
+
+            }
+            break;
+
+        case 3 :
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            CalculateTotalAverageStu(score,n,g,totalstu,averagestu);
+            PrintScoreStu(name,number,totalstu,averagestu,n);
+            break;
+
+        case 4:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            SelectionSort(name,score,totalstu,number,n,g,Dscending);
+            PrintScore(name,number,totalstu,n);
+            break;
+
+        case 5:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            SelectionSort(name,score,totalstu,number,n,g,Ascending);
+            PrintScore(name,number,totalstu,n);
+            break;
+
+        case 6:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+
+            NumberLowToHigh(name,number,score,totalstu,n,g);
+            PrintScoreSub(name,number,score,n,g);
+            break;
+
+        case 7:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            SortString(number,name,score,totalstu,n,g);
+            PrintScoreSub(name,number,score,n,g);
+            break;
+
+        case 8:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            SelectionSort(name,score,totalstu,number,n,g,Dscending);//先进行降序排序
+            scanf("%d",&x);
+            pos=LinSearch(number,x,n);
+            if(pos!=-1)
+            {
+
+               PrintRankScore(name,score,g,pos);
+            }
+            else
+            {
+                printf("Not found\n");
+            }
+
+            break;
+
+        case 9:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            SelectionSort(name,score,totalstu,number,n,g,Dscending);//先进行降序排序
+            scanf("%s",y);
+            pos2=NameSearch(name,y,n);
+            if(pos2!=-1)
+            {
+                PrintRankScore(name,score,g,pos2);
+            }
+            else
+            {
+                printf("Not found\n");
+            }
+            break;
+
+        case 10:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+            RankScore(score,n,g);
+            break;
+
+        case 11:
+            if(f!=1)
+            {
+                printf("Please input score first\n");
+                break;
+            }
+
+           PrintAll(name,number,score,totalstu,averagestu,n,g);
+            break;
+
+        case 0:
+            exit(0);
+
+        default:
+            printf("Please input a number!");
+
+        }
+    }
+    while(mode!=0);
+
+    return 0;
+}
+
+//函数功能：读取输入的学生学号和成绩
+void ReadScore(char Name[][M],int Number[],int Score[][G],int*n,int*g)
+{
+    int Students,i,j,Subjects;
+    printf("How many students?\n");
+    scanf("%d",&Students);
+    while(Students>30)
+    {
+        printf("Students shuold be less than 30\n");
+        fflush(stdin);
+        printf("How many students?\n");
+        scanf("%d",&Students);
+
+    }
+    *n=Students;
+    printf("How many subjects?\n");
+    scanf("%d",&Subjects);
+    while(Subjects>6)
+    {
+        printf("Subjects shuold be less than 6\n");
+        fflush(stdin);
+        printf("How many subjects?\n");
+        scanf("%d",&Subjects);
+
+    }
+
+    *g=Subjects;
+
+    printf("Input name,number and score of each subjects\n");
+    for(i=0; i<Students; i++)
+    {
+
+        scanf("%s %d",Name[i],&Number[i]);
+        while(Number[i]<0)
+        {
+            printf("Number shuold not be less than 0!\n");
+            fflush(stdin);
+            printf("Input name and number again\n");
+            scanf("%s %d",Name[i],&Number[i]);
+
+        }
+        for(j=0; j<Subjects; j++)
+        {
+            scanf("%d",&Score[i][j]);
+            while(Score[i][j]<0)
+            {
+                printf("Score shuold not be less than 0!\n");
+                fflush(stdin);
+                printf("Input a right score\n");
+                scanf("%d",&Score[i][j]);
+
+            }
+        }
+
+    }
+
+}
+
+//函数功能：计算每科总分和平均分
+void CalculateTotalAverage(int Score[][G],int n,int g,int*pTotal,double*pAverage)
+{
+    int i,j;
+
+    for(j=0; j<g; j++,pTotal++,pAverage++)
+    {
+        for(i=0; i<n; i++)
+        {
+            *pTotal+=Score[i][j];
+        }
+        *pAverage=(double)*pTotal/(double)n;
+    }
+
+}
+
+
+//函数功能：计算每个学生各科总分和平均分
+void CalculateTotalAverageStu(int Score[][G],int n,int g,int*pTotal,double*pAverage)
+{
+    int i,j;
+
+    for(j=0; j<n; j++,pTotal++,pAverage++)
+    {
+        for(i=0; i<g; i++)
+        {
+            *pTotal+=Score[j][i];
+        }
+        *pAverage=(double)*pTotal/(double)g;
+    }
+}
+
+//函数功能：输出学生的姓名，学号和成绩
+void PrintScore(char Name[][M],int Number[],int Totalstu[],int n)
+{
+    int i;
+    printf("Name   Number  TotalScore\n");
+    for(i=0; i<n; i++)
+    {
+        printf("%s       %d       %d   \n",Name[i],Number[i],Totalstu[i]);
+
+    }
+    printf("\n");
+}
+
+//函数功能：输出每个学生的姓名，学号和总分，平均分·
+void PrintScoreStu(char Name[][M],int Number[],int Totalstu[],double Averagestu[],int n)
+{
+    int i;
+    printf("Name   Number   Total   Average \n");
+    for(i=0; i<n; i++)
+    {
+        printf("%s       %d       %d       %f\n",Name[i],Number[i],Totalstu[i],Averagestu[i]);
+
+    }
+    printf("\n");
+}
+
+//输出学生姓名学号和各科成绩
+void PrintScoreSub(char Name[][M],int Number[],int Score[][G],int n,int g)
+{
+    int o,p;
+
+    for(o=0; o<n; o++)
+            {
+                printf("%s %d Score:",Name[o],Number[o]);
+                for(p=0; p<g; p++)
+                {
+                    printf(" %d",Score[o][p]);
+                }
+                printf("\n");
+            }
+}
+
+//输出学生姓名成绩各科成绩和总分平均分
+void PrintAll(char Name[][M],int Number[],int Score[][G],int Totalstu[N],double Averagestu[N],int n,int g)
+{
+    int o,p;
+    for(o=0; o<n; o++)
+            {
+                printf("%s %d",Name[o],Number[o]);
+                printf("Scores are:");
+                for(p=0; p<g; p++)
+                {
+                    printf(" %d",Score[o][p]);
+                }
+                printf("\n");
+                printf("Total score is:%d.Average score is%f",Totalstu[o],Averagestu[o]);
+                printf("\n");
+            }
+}
+
+//输出学生姓名学号排名和各科成绩
+void PrintRankScore(char Name[][M],int Score[][G],int g,int pos)
+{
+    int o;
+
+    printf("Name is %s.Rank is %d\n",Name[pos],pos+1);
+    printf("Scores are :");
+    for(o=0; o<g; o++)
+    {
+        printf(" %d",Score[pos][o]);
+    }
+    printf("\n");
+}
+
+
+//函数功能：调用函数指针compare指向的函数实现对成绩的排序
+void SelectionSort(char Name[][M],int Score[][G],int Totalstu[],int Number[],int n,int g,int(*compare)(int a,int b))
+{
+    int i,j,k,l;
+    for(i=0; i<n-1; i++)
+    {
+        k=i;
+        for(j=i+1; j<n; j++)
+        {
+            if((*compare)(Totalstu[j],Totalstu[k]))
+                k=j;
+        }
+        if(k!=i)
+        {
+            SwapName(Name[k],Name[i]);
+            Swap(&Totalstu[k],&Totalstu[i]);
+            for(l=0;l<g;l++)
+            {
+                Swap(&Score[k][l],&Score[i][l]);
+            }
+            Swap(&Number[k],&Number[i]);
+        }
+
+    }
+}
+
+//函数功能：两整数值互换
+void Swap(int*x,int*y)
+{
+    int temp;
+
+    temp=*x;
+    *x=*y;
+    *y=temp;
+}
+
+//函数功能：使数据升序排列
+int Ascending(int a,int b)
+{
+    return a<b;
+}
+
+//函数功能：使数据降序排列
+int Dscending(int a,int b)
+{
+    return a>b;
+}
+
+
+
+//函数功能：使学号升序排列
+void NumberLowToHigh(char Name[][M],int Number[],int Score[][G],int Totalstu[],int n,int g)
+{
+    int i,j,k,temp1,temp2;
+    for(i=0; i<n-1; i++)
+    {
+        for(j=i+1; j<n; j++)
+        {
+            if(Number[j]<Number[i])
+            {
+                SwapName(Name[j],Name[i]);
+                Swap(&Totalstu[j],&Totalstu[i]);
+                for(k=0; k<g; k++)
+                {
+                    temp1=Score[j][k];
+                    Score[j][k]=Score[i][k];
+                    Score[i][k]=temp1;
+                }
+
+                temp2=Number[j];
+                Number[j]=Number[i];
+                Number[i]=temp2;
+            }
+        }
+    }
+}
+
+//函数功能：线性查找值为x的数组元素，返回x在数组中的下标，否则返回-1
+int LinSearch(int Number[],int x,int n)
+{
+    int i;
+    for(i=0; i<n; i++)
+    {
+        if(Number[i]==x)
+        {
+            return i;
+        }
+
+
+    }
+    return -1;
+}
+
+//计算各区间人数与所占百分比
+void RankScore(int Score[][G],int n,int g)
+{
+    int i,j,A,B,C,D,E;
+    A=B=C=D=E=0;
+
+    for(j=0; j<g; j++)
+    {
+        for(i=0; i<n; i++)
+        {
+            if(Score[i][j]>=90&&Score[i][j]<=100)
+            {
+                A+=1;
+            }
+            else if(Score[i][j]>=80&&Score[i][j]<=89)
+            {
+                B+=1;
+            }
+            else if(Score[i][j]>=70&&Score[i][j]<=79)
+            {
+                C+=1;
+            }
+            else if(Score[i][j]>=60&&Score[i][j]<=69)
+            {
+                D+=1;
+            }
+            else if(Score[i][j]>=0&&Score[i][j]<=59)
+            {
+                E+=1;
+            }
+        }
+
+        printf("Score of subject%d in 90 to 100 is %d.Account for%.2f%%\n",j,A,((double)A/(double)n)*100);
+        printf("Score of subject%d in 80 to 89 is %d.Account for%.2f%%\n",j,B,((double)B/(double)n)*100);
+        printf("Score of subject%d in 70 to 79 is %d.Account for%.2f%%\n",j,C,((double)C/(double)n)*100);
+        printf("Score of subject%d in 60 to 69 is %d.Account for%.2f%%\n",j,D,((double)D/(double)n)*100);
+        printf("Score of subject%d in 0 to 59 is %d.Account for%.2f%%\n",j,E,((double)E/(double)n)*100);
+    }
+
+
+}
+
+void SortString(int Number[],char Name[][M],int Score[][G],int Totalstu[],int n,int g)
+{
+    int i,j,k,temp1;
+
+    for(i=0; i<n-1; i++)
+    {
+        for(j=i+1; j<n; j++)
+        {
+            if(strcmp(Name[j],Name[i])<0)
+            {
+                SwapName(Name[i],Name[j]);
+                Swap(&Number[i],&Number[j]);
+                Swap(&Totalstu[i],&Totalstu[j]);
+                for(k=0; k<g; k++)
+                {
+                    temp1=Score[j][k];
+                    Score[j][k]=Score[i][k];
+                    Score[i][k]=temp1;
+                }
+            }
+        }
+    }
+}
+
+//交换姓名在数组中的排序
+void SwapName(char Name1[],char Name2[])
+{
+    char temp[M];
+
+    strcpy(temp,Name1);
+    strcpy(Name1,Name2);
+    strcpy(Name2,temp);
+}
+
+
+//查找对应的姓名并输出其在数组中的下标
+int NameSearch(char Name[][M],char y[M],int n)
+{
+    int i;
+    for(i=0; i<n; i++)
+    {
+        if(strcmp(Name[i],y)==0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
